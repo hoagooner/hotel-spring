@@ -1,0 +1,28 @@
+package fa.training.constraint;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import fa.training.services.FacilityService;
+
+public class UniqueFacilityValidator implements ConstraintValidator<UniqueFacility, String> {
+
+	@Autowired
+	private FacilityService facilityServiceImpl;
+
+	@Override
+	public void initialize(UniqueFacility unique) {
+		unique.message();
+	}
+
+	@Override
+	public boolean isValid(String name, ConstraintValidatorContext context) {
+		if (facilityServiceImpl != null && facilityServiceImpl.checkNameExists(name) != null) {
+			return false;
+		}
+		return true;
+	}
+
+}
