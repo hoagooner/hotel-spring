@@ -1,5 +1,7 @@
 package fa.training.api;
 
+import java.util.Optional;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import fa.training.dto.FacilityDTO;
 import fa.training.entities.FacilityEntity;
 import fa.training.services.FacilityService;
 
@@ -25,27 +28,51 @@ public class FacilityAPI {
 	private FacilityService facilityServiceImpl;
 
 	/**
+	 * 
 	 * @param query
+	 * @param sortBy
+	 * @param sortDirection
 	 * @param pageNumber
 	 * @param pageSize
-	 * @return Page<FacilityEntity>
+	 * @return
 	 */
 	@GetMapping("/api/facilities")
 	public Object getFacilities(@RequestParam(name = "query", defaultValue = "", required = false) String query,
+			@RequestParam(name = "sortBy", defaultValue = "id", required = false) String sortBy,
+			@RequestParam(name = "sortDirection", defaultValue = "desc", required = false) String sortDirection,
 			@RequestParam(name = "pageNumber", defaultValue = "0") int pageNumber,
 			@RequestParam(name = "pageSize", defaultValue = "5") int pageSize) {
-		pageNumber = pageNumber != 0 ? pageNumber - 1 : pageNumber;
+
 		Page<FacilityEntity> facilities;
 		if (query.isEmpty()) {
-			facilities = facilityServiceImpl.getAll(pageNumber, pageSize);
+			facilities = facilityServiceImpl.getAll(pageNumber, pageSize, sortBy, sortDirection);
 		} else {
-			facilities = facilityServiceImpl.findByName(query, pageNumber, pageSize);
+			facilities = facilityServiceImpl.findByName(query, pageNumber, pageSize, sortBy, sortDirection);
 		}
-		if (facilities.isEmpty()) {
-			return new ResponseEntity<>(Page.empty(),HttpStatus.NO_CONTENT);
-		} else {
-			return new ResponseEntity<>(facilities, HttpStatus.OK);
+		return facilities.isEmpty() ? new ResponseEntity<>(Page.empty(), HttpStatus.NO_CONTENT)
+				: new ResponseEntity<>(facilities, HttpStatus.OK);
+	}
+
+	@GetMapping("/api/facilities/{id}")
+	public Object getFacility(@PathVariable("id") int id) {
+		Optional<FacilityEntity> facilityOptional = facilityServiceImpl.getById(id);
+		return facilityOptional.map(facility -> ResponseEntity.ok().body(facility))
+				.orElseGet(() -> ResponseEntity.notFound().build());
+	}
+
+	@GetMapping("/api/facilities/search")
+	public Object getFacilityByName(@RequestParam("name") String name) {
+		FacilityEntity facility =  facilityServiceImpl.checkNameExists(name);
+		if(facility != null) {
+			return ResponseEntity.ok().body(facility);
 		}
+		return  ResponseEntity.notFound().build();
+	}
+
+	@GetMapping("/api/facilities/list")
+	public Object getFacilities() {
+		Object facilities = facilityServiceImpl.getAll();
+		return (facilities != null) ? ResponseEntity.ok().body(facilities) : ResponseEntity.noContent();
 	}
 
 	/**
@@ -54,58 +81,27 @@ public class FacilityAPI {
 	 * @return ResponseEntity<FacilityEntity>
 	 */
 	@PostMapping("/api/facilities")
-	public ResponseEntity<FacilityEntity> addFacility(@Valid @RequestBody FacilityEntity facility) {
-		try {
-			facilityServiceImpl.save(facility);
-			return ResponseEntity.ok().body(facility);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.internalServerError().build();
-		}
+	public ResponseEntity<FacilityDTO> addFacility(@Valid @RequestBody FacilityDTO facility) {
+		return ResponseEntity.ok().body(facilityServiceImpl.save(facility));
 	}
 
-	@DeleteMapping("/api/facilities/{id}")
+	@DeleteMapping(value = "/api/facilities/{id}")
 	public Object deleteFacility(@PathVariable("id") int id) {
-		FacilityEntity facility = facilityServiceImpl.getById(id);
-		if (facility != null) {
+		Optional<FacilityEntity> facilityOptional = facilityServiceImpl.getById(id);
+		return facilityOptional.map(facility -> {
 			facilityServiceImpl.delete(id);
-			return new ResponseEntity<>(HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+			return ResponseEntity.ok().build();
+		}).orElseGet(() -> ResponseEntity.internalServerError().build());
 	}
 
 	@PutMapping("/api/facilities/{id}")
-	public Object updateFacility(@PathVariable("id") int id, @RequestBody FacilityEntity facility) {
-		FacilityEntity _facility = facilityServiceImpl.getById(id);
-		if (_facility != null) {
-			facilityServiceImpl.save(facility);
-			return new ResponseEntity<>(facility, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
+	public Object updateFacility(@PathVariable("id") int id, @RequestBody FacilityDTO facilityDTO) {
+		Optional<FacilityEntity> facilityOptional = facilityServiceImpl.getById(id);
+		return facilityOptional.map(facility -> {
+			facilityDTO.setId(facility.getId());
+			return new ResponseEntity<>(facilityServiceImpl.save(facilityDTO), HttpStatus.OK);
+		}).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
 
-	@GetMapping("/api/facilities/{id}")
-	public Object getFacility(@PathVariable("id") int id) {
-		FacilityEntity facility = facilityServiceImpl.getById(id);
-		if (facility != null) {
-			return new ResponseEntity<>(facility, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
 	}
-	
-	@GetMapping("/api/facilities/search")
-	public Object getFacilityByName(@RequestParam("name") String name) {
-		Object facility = facilityServiceImpl.checkNameExists(name);
-		if (facility != null) {
-			return new ResponseEntity<>(facility, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-	
-	
 
 }

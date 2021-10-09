@@ -1,4 +1,4 @@
-package fa.training.constraint;
+package fa.training.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -17,6 +17,7 @@ public class UniqueFacilityValidator implements ConstraintValidator<UniqueFacili
 		unique.message();
 	}
 
+	// so sanh name khi update
 	@Override
 	public boolean isValid(String name, ConstraintValidatorContext context) {
 		if (facilityServiceImpl != null && facilityServiceImpl.checkNameExists(name) != null) {

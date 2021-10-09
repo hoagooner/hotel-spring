@@ -1,18 +1,29 @@
 package fa.training.entities;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-@Table(name = "room")
+@Table(name = "rooms")
 public class RoomEntity implements Serializable {
 
 	/**
@@ -24,7 +35,6 @@ public class RoomEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(name = "room_number")
 	private int roomNumber;
 
 	@ManyToOne
@@ -33,38 +43,13 @@ public class RoomEntity implements Serializable {
 
 	private String floor;
 
-	public RoomEntity() {
-	}
+	@OneToMany(mappedBy = "room")
+	@JsonIgnore
+	private List<BookingDetailEntity> bookingDetails;
 
-	public int getRoomNumber() {
-		return roomNumber;
-	}
+	private boolean deleteFlag;
 
-	public void setRoomNumber(int roomNumber) {
-		this.roomNumber = roomNumber;
-	}
-
-	public RoomTypeEntity getRoomType() {
-		return roomType;
-	}
-
-	public void setRoomType(RoomTypeEntity roomType) {
-		this.roomType = roomType;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getFloor() {
-		return floor;
-	}
-
-	public void setFloor(String floor) {
-		this.floor = floor;
-	}
+    private Date createdDate;
+    
+    private Date modifiedDate;
 }

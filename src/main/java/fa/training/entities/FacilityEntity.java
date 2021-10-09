@@ -1,6 +1,7 @@
 package fa.training.entities;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -10,16 +11,21 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import fa.training.constraint.UniqueFacility;
+import fa.training.validator.UniqueFacility;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "Facility")
+@Table(name = "Facilities")
+@Getter
+@Setter
+@NoArgsConstructor
 public class FacilityEntity implements Serializable {
 
 	/**
@@ -31,14 +37,13 @@ public class FacilityEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 
-	@Column(columnDefinition = "nvarchar")
+	@Column(columnDefinition = "nvarchar(50)")
 	@NotEmpty(message = "{facility.name.notempty}")
 	@Size(max  = 50, message = "{facility.name.invalid_length}")
 	@UniqueFacility(message = "{facility.name.unique}")
 	private String name;
 
-	@Column(columnDefinition = "nvarchar")
-	@NotEmpty(message = "{facility.description.notempty}")
+	@Column(columnDefinition = "nvarchar(255)")
 	@Size(max  = 255, message = "{facility.description.invalid_length}")
 	private String description;
 
@@ -47,44 +52,11 @@ public class FacilityEntity implements Serializable {
 	private Set<RoomTypeEntity> roomTypes;
 
 	private String icon;
+	
+	private boolean deleteFlag;
 
-	public FacilityEntity() {
-	}
-
-	public FacilityEntity(int id) {
-		this.id = id;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getIcon() {
-		return icon;
-	}
-
-	public void setIcon(String icon) {
-		this.icon = icon;
-	}
+    private Date createdDate;
+    
+    private Date modifiedDate;
 
 }

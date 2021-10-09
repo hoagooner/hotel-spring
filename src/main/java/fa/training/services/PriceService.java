@@ -1,5 +1,13 @@
 package fa.training.services;
 
-public class PriceService {
+import fa.training.entities.PriceEntity;
+
+public interface PriceService {
+
+	public void save(PriceEntity price);
+	
+	public double getLatestPriceOfRoomType(int roomTypeId);
+	
+	public boolean checkPriceAvailable(int roomTypeId);
 
 }

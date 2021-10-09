@@ -1,15 +1,10 @@
 package fa.training.main;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.springframework.util.FileSystemUtils;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class Main {
-	public static void main(String[] args) {
-		Path dir = Paths.get("src/main/resources/static/upload");
-		dir = Paths.get(dir.toString(), "/facilities.png");
-		System.out.println(dir);
-		FileSystemUtils.deleteRecursively(dir.toFile());
+	public static void main(String[] args) throws ParseException {
+	    System.out.println(Boolean.FALSE.equals(false));
 	}
 }

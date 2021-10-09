@@ -1,4 +1,4 @@
-package fa.training.constraint;
+package fa.training.validator;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 

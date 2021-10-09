@@ -10,9 +10,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Entity
-@Table(name = "price")
-public class PriceEntity {
+@Table(name = "prices")
+@Getter
+@Setter
+@NoArgsConstructor
+public class PriceEntity  implements Comparable<PriceEntity>{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,39 +32,26 @@ public class PriceEntity {
 	private Date modifiedDate;
 
 	@ManyToOne
+	@JsonIgnore
 	@JoinColumn(name = "room_type_id")
 	private RoomTypeEntity roomType;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public double getPrice() {
-		return price;
-	}
-
-	public void setPrice(double price) {
+	
+	private boolean deleteFlag;
+	
+	public PriceEntity(double price, Date modifiedDate, RoomTypeEntity roomType) {
+		super();
 		this.price = price;
-	}
-
-	public Date getModifiedDate() {
-		return modifiedDate;
-	}
-
-	public void setModifiedDate(Date modifiedDate) {
 		this.modifiedDate = modifiedDate;
-	}
-
-	public RoomTypeEntity getRoomType() {
-		return roomType;
-	}
-
-	public void setRoomType(RoomTypeEntity roomType) {
 		this.roomType = roomType;
+	}
+
+	public void setDeleteFlag(boolean deleteFlag) {
+		this.deleteFlag = deleteFlag;
+	}
+
+	@Override
+	public int compareTo(PriceEntity obj) {
+		return obj.getModifiedDate().compareTo(this.getModifiedDate());
 	}
 	
 }
